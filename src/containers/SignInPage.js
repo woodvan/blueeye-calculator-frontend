@@ -64,7 +64,7 @@ const SignInPage = ({setAuthenticated}) => {
         event.preventDefault();
         try {
             const response = await login(payload);
-            if (response.status = 200) {
+            if (response.status === 200) {
                 LocalStorageService.saveState('access_token', response.data?.data?.accessToken);
                 LocalStorageService.saveState('refresh_token', response.data?.data?.refreshToken);
                 setAuthenticated(true);

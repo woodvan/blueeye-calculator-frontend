@@ -4,7 +4,7 @@ import SignUpPage from "./containers/SignUpPage";
 import SignInPage from "./containers/SignInPage";
 import HomePage from "./containers/HomePage";
 import NotFoundPage from "./containers/NotFoundPage";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LocalStorageService from './utils/LocalStorageService';
 

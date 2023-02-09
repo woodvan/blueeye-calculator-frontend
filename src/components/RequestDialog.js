@@ -56,7 +56,7 @@ const operators = {
         {'name': 'param1', 'type': 'number'},
     ],
     'random_string' : [
-        {'name': 'length', 'type': 'number'},
+        {'name': 'param1', 'type': 'number'},
     ],
 }
   

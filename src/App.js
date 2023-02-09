@@ -4,29 +4,40 @@ import SignUpPage from "./containers/SignUpPage";
 import SignInPage from "./containers/SignInPage";
 import HomePage from "./containers/HomePage";
 import NotFoundPage from "./containers/NotFoundPage";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import LocalStorageService from './utils/LocalStorageService';
 
 function App() {
-  const [currentUser, setCurrentUser] = useState("as");
-
+  const [authenticated, setAuthenticated] = useState(false);
+  useEffect(()=>{
+    const access_token = LocalStorageService.loadState('access_token');
+    if (access_token) {
+      setAuthenticated(true);
+    }
+  }, []);
   return (
-    <Routes>
-      <Route
-        path="//*"
-        element={currentUser ? <HomePage /> : <Navigate to="/login" />}
-      />
-      <Route
-        path="*"
-        element={<NotFoundPage/>}
-      />
-      <Route
-        path="/register"
-        element={currentUser ? <Navigate to="/" /> : <SignUpPage />}
-      />
-      <Route
-        path="/login"
-        element={currentUser ? <Navigate to="/" /> : <SignInPage />}
-      />
-    </Routes>
+    <React.Fragment>
+      <Routes>
+        <Route
+          path="//*"
+          element={authenticated ? <HomePage setAuthenticated={setAuthenticated}/> : <Navigate to="/login" />}
+        />
+        <Route
+          path="*"
+          element={<NotFoundPage/>}
+        />
+        <Route
+          path="/register"
+          element={authenticated ? <Navigate to="/" /> : <SignUpPage />}
+        />
+        <Route
+          path="/login"
+          element={authenticated ? <Navigate to="/" /> : <SignInPage setAuthenticated={setAuthenticated}/>}
+        />
+      </Routes>
+      <ToastContainer/>
+    </React.Fragment>
   );
 }
 

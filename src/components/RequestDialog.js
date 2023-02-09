@@ -25,42 +25,42 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const operations = [
-    null,
-    "addition",
-    "subtraction",
-    "multiplication",
-    "division",
-    "square_root",
-    "random_string",
-];
+// const operations = [
+//     null,
+//     "addition",
+//     "subtraction",
+//     "multiplication",
+//     "division",
+//     "square_root",
+//     "random_string",
+// ];
 
 const operators = {
     'addition' : [
-        {'name': 'param1', 'type': 'text'},
-        {'name': 'param2', 'type': 'text'}
+        {'name': 'param1', 'type': 'number'},
+        {'name': 'param2', 'type': 'number'}
     ],
     'subtraction' : [
-        {'name': 'param1', 'type': 'text'},
-        {'name': 'param2', 'type': 'text'}
+        {'name': 'param1', 'type': 'number'},
+        {'name': 'param2', 'type': 'number'}
     ],
     'multiplication' : [
-        {'name': 'param1', 'type': 'text'},
-        {'name': 'param2', 'type': 'text'}
+        {'name': 'param1', 'type': 'number'},
+        {'name': 'param2', 'type': 'number'}
     ],
     'division' : [
-        {'name': 'param1', 'type': 'text'},
-        {'name': 'param2', 'type': 'text'}
+        {'name': 'param1', 'type': 'number'},
+        {'name': 'param2', 'type': 'number'}
     ],
     'square_root' : [
-        {'name': 'param', 'type': 'text'},
+        {'name': 'param1', 'type': 'number'},
     ],
     'random_string' : [
-        {'name': 'length', 'type': 'text'},
+        {'name': 'length', 'type': 'number'},
     ],
 }
   
-const RequestDialog = ({open, handleClose, onSubmit}) => {
+const RequestDialog = ({operations, open, onCloseDialog, onSubmit}) => {
     const classes = useStyles();
     const [operation, setOperation] = useState("");
     const [params, setParams] = useState({});
@@ -73,11 +73,11 @@ const RequestDialog = ({open, handleClose, onSubmit}) => {
     };
 
     const requestOperation = () => {
-        const data = {
+        const payload = {
             operation,
             params
         };
-        onSubmit(data);
+        onSubmit(payload);
     }
 
     const renderOperators=(operator)=>{
@@ -85,10 +85,11 @@ const RequestDialog = ({open, handleClose, onSubmit}) => {
         if (!fields || fields.length<1) return <></>;
         return <React.Fragment>
             {fields.map((field, idx)=>{
-                if (field.type === 'text')
+                if (field.type === 'number')
                     return <Grid container justifyContent="center" key={idx}>
                         <FormControl className={classes.formControl}>
                             <TextField
+                                type="number"
                                 variant="outlined"
                                 margin="normal"
                                 required
@@ -106,7 +107,7 @@ const RequestDialog = ({open, handleClose, onSubmit}) => {
     }
 
     return (
-    <Dialog open={open} handleClose={handleClose} aria-labelledby="form-dialog-title">
+    <Dialog open={open} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">Request Operation</DialogTitle>
         <DialogContent>
             <DialogContentText>
@@ -122,14 +123,14 @@ const RequestDialog = ({open, handleClose, onSubmit}) => {
                         onChange={(event)=>{setOperation(event.target.value)}}
                     >
                         <MenuItem value=""><em>None</em></MenuItem>
-                        {operations.map((operation, idx)=><MenuItem key={idx} value={operation}>{operation}</MenuItem>)}
+                        {operations && operations.map((operation, idx)=><MenuItem key={idx} value={operation.type}>{operation.type} ({operation.cost} credit)</MenuItem>)}
                     </Select>
                 </FormControl>
             </Grid>
             {renderOperators(operation)}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary" type="button" variant="contained">
+          <Button onClick={onCloseDialog} color="primary" type="button" variant="contained">
             Cancel
           </Button>
           <Button onClick={requestOperation} color="primary" type="button" variant="contained">

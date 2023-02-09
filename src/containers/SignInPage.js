@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -10,7 +10,10 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import { toast } from 'react-toastify';
 
+import {login} from '../services/auth';
+import LocalStorageService from '../utils/LocalStorageService';
 function Copyright() {
     return (
       <Typography variant="body2" color="textSecondary" align="center">
@@ -45,15 +48,32 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const SignInPage = () => {
+const SignInPage = ({setAuthenticated}) => {
     const classes = useStyles();
-    const handleSubmit = (event) => {
+
+    const [payload, setPayload] = useState(null);
+
+    const onFieldChange = (event) => {
+      setPayload({
+          ...payload,
+          [event.target.name]: event.target.value
+      })
+    };
+
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
+        try {
+            const response = await login(payload);
+            if (response.status = 200) {
+                LocalStorageService.saveState('access_token', response.data?.data?.accessToken);
+                LocalStorageService.saveState('refresh_token', response.data?.data?.refreshToken);
+                setAuthenticated(true);
+            } else {
+                toast("Failed", {type: 'error'});
+            }
+        } catch (error) {   
+            toast(error?.response?.data?.message || error.message, {type: 'error'});
+        }
     };
 
     return (
@@ -66,7 +86,7 @@ const SignInPage = () => {
                 <Typography component="h1" variant="h5">
                     Sign in
                 </Typography>
-                <form className={classes.form} noValidate onSubmit={handleSubmit}>
+                <form className={classes.form} noValidate>
                     <TextField
                         variant="outlined"
                         margin="normal"
@@ -77,6 +97,7 @@ const SignInPage = () => {
                         name="email"
                         autoComplete="email"
                         autoFocus
+                        onChange={onFieldChange}
                     />
                     <TextField
                         variant="outlined"
@@ -88,13 +109,15 @@ const SignInPage = () => {
                         type="password"
                         id="password"
                         autoComplete="current-password"
+                        onChange={onFieldChange}
                     />
                     <Button
-                        type="submit"
+                        type="button"
                         fullWidth
                         variant="contained"
                         color="primary"
                         className={classes.submit}
+                        onClick={handleSubmit}
                     >
                         Sign In
                     </Button>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -10,6 +10,9 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+
+import { toast } from 'react-toastify';
+import {register} from '../services/auth';
 
 function Copyright() {
   return (
@@ -48,19 +51,27 @@ const useStyles = makeStyles((theme) => ({
 
 const SignUpPage = () => {
     const classes = useStyles();
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        console.log({
-            firstname: data.get('firstname'),
-            lastname: data.get('lastname'),
-            email: data.get('email'),
-            password: data.get('password'),
-        });
+
+    const [payload, setPayload] = useState(null);
+
+    const onFieldChange = (event) => {
+      setPayload({
+          ...payload,
+          [event.target.name]: event.target.value
+      })
+    };
+
+    const handleSubmit = async () => {
+        try {
+            await register(payload);
+            toast(`${payload.email} was created successfully`, {type: 'success'});
+        } catch (error) {
+            toast(error?.response?.data?.message || error.message, {type: 'error'});
+        }
     };
 
     return (
-<Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="xs">
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
@@ -69,18 +80,19 @@ const SignUpPage = () => {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
-        <form className={classes.form} noValidate onSubmit={handleSubmit}>
+        <form className={classes.form} noValidate>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
                 autoComplete="fname"
-                name="firstName"
+                name="firstname"
                 variant="outlined"
                 required
                 fullWidth
-                id="firstName"
+                id="firstname"
                 label="First Name"
                 autoFocus
+                onChange={onFieldChange}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -88,10 +100,11 @@ const SignUpPage = () => {
                 variant="outlined"
                 required
                 fullWidth
-                id="lastName"
+                id="lastname"
                 label="Last Name"
-                name="lastName"
+                name="lastname"
                 autoComplete="lname"
+                onChange={onFieldChange}
               />
             </Grid>
             <Grid item xs={12}>
@@ -103,6 +116,7 @@ const SignUpPage = () => {
                 label="Email Address"
                 name="email"
                 autoComplete="email"
+                onChange={onFieldChange}
               />
             </Grid>
             <Grid item xs={12}>
@@ -115,15 +129,17 @@ const SignUpPage = () => {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                onChange={onFieldChange}
               />
             </Grid>
           </Grid>
           <Button
-            type="submit"
+            type="button"
             fullWidth
             variant="contained"
             color="primary"
             className={classes.submit}
+            onClick={handleSubmit}
           >
             Sign Up
           </Button>
